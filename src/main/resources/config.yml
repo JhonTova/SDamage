@@ -1,0 +1,166 @@
+# ============================================================================
+#  SPvP - Suite modular de PvP
+#  No cambies "config-version": lo usa el plugin para migrar la config.
+# ============================================================================
+config-version: 3
+
+# Mundos donde actua el plugin. Usa "*" para TODOS los mundos.
+enabled-worlds:
+  - world
+  # - "*"
+
+protection:
+  # Si un jugador esta en una zona con PVP denegado (WorldGuard), no se le tocan los danos.
+  respect-pvp-zones: true
+  check-worldguard: true
+
+messages:
+  prefix: "<gradient:#00c6ff:#0072ff><bold>SPvP</bold></gradient> <dark_gray>»</dark_gray> "
+  reloaded: "<green>Configuracion recargada correctamente."
+  no-permission: "<red>No tienes permiso para usar esto."
+
+# ============================================================================
+#  MODULO: DAMAGE  ->  modifica el dano segun su fuente
+# ----------------------------------------------------------------------------
+#  Formula por fuente:  final = clamp( (base * multiplier * critico) + flat, min, max )
+#
+#    multiplier : 1.0 = normal | 0.5 = mitad | 2.0 = doble | 0.0 = sin dano
+#    flat       : se SUMA/RESTA al final | -1.0 = quita medio corazon extra
+#    min / max  : limites del dano CRUDO, antes de armadura (usa -1 = sin limite)
+#    max-real   : tope del dano REAL que pierde la victima, DESPUES de armadura
+#                 (usa -1 = sin limite). 2 puntos = 1 corazon.
+#    enabled    : false = no se toca esa fuente (queda vanilla)
+#
+#  IMPORTANTE: "max" capa el golpe crudo y luego la armadura reduce todavia mas,
+#  asi que con armadura la victima recibe MENOS del tope. Si quieres que pierda
+#  "hasta X corazones REALES" pase lo que pase con la armadura, usa "max-real".
+#
+#  Ejemplos de lo que preguntabas:
+#    - "que la espada haga menos dano"      -> multiplier: 0.7
+#    - "que el hacha haga 2 de dano menos"  -> flat: -2.0
+#    - "que la caida no haga nada"          -> multiplier: 0.0
+#    - "que el mazo nunca quite mas de 10 corazones REALES desde altura":
+#          mace: { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1, max-real: 20 }
+# ============================================================================
+damage:
+  enabled: true
+
+  # Multiplicador EXTRA aplicado encima del critico vanilla (1.0 = sin cambio).
+  critical:
+    enabled: true
+    multiplier: 1.0
+
+  sources:
+    sword:       { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    axe:         { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    spear:       { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }   # lanza (1.21.11)
+    trident:     { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    mace:        { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }   # anti-instakill REAL: pon max-real: 20
+    bow:         { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    crossbow:    { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    unarmed:     { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    explosion:   { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    end-crystal: { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    projectile:  { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    fall:        { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    fire:        { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    magic:       { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+    thorns:      { enabled: true, multiplier: 1.0, flat: 0.0, min: 0.0, max: -1 }
+
+# ============================================================================
+#  MODULO: COOLDOWN  ->  cooldown visual (barra gris en el hotbar) por item
+# ----------------------------------------------------------------------------
+#  Clave = nombre del Material (mayusculas). Valor en SEGUNDOS (admite decimales).
+#  El permiso "spvp.cooldown.bypass" ignora todos los cooldowns.
+#  Vacio = sin cooldowns (vanilla). Descomenta los que quieras usar.
+# ============================================================================
+cooldown:
+  enabled: true
+  items: {}
+    # ENDER_PEARL: 1.0
+    # CHORUS_FRUIT: 1.0
+    # WIND_CHARGE: 0.5
+    # SNOWBALL: 0.25
+    # EGG: 0.25
+    # BOW: 0.5
+    # CROSSBOW: 1.0
+    # FISHING_ROD: 0.5
+
+# ============================================================================
+#  MODULO: FOOD  ->  control de comida/hambre en PvP
+# ----------------------------------------------------------------------------
+#  restore  : sobrescribe cuanta hambre/saturacion da un item al COMERLO.
+#  use-cost : cuanta hambre (en puntos, medio muslo = 1) cuesta USAR un item
+#             (click derecho). Ej: que la lanza te cueste comida al empujarte.
+#  Vacio = vanilla. Los valores comentados son los de vanilla, por referencia.
+# ============================================================================
+food:
+  enabled: true
+  restore: {}
+    # GOLDEN_APPLE:            { hunger: 4, saturation: 9.6 }
+    # ENCHANTED_GOLDEN_APPLE:  { hunger: 4, saturation: 9.6 }
+    # GOLDEN_CARROT:           { hunger: 6, saturation: 14.4 }
+  use-cost: {}
+    # TRIDENT: 1.0
+
+# ============================================================================
+#  MODULO: TOTEM
+# ----------------------------------------------------------------------------
+#  max-stack-size : tamano de stack del totem (1 = vanilla, hasta 99).
+#  cooldown       : segundos que debe pasar entre activaciones de totem
+#                   (0 = sin cooldown). En cooldown, el totem NO salva.
+# ============================================================================
+totem:
+  enabled: true
+  max-stack-size: 1     # 1 = vanilla (no stackea). Sube a 16/64 para stackear.
+  cooldown: 0.0         # 0 = vanilla (sin cooldown)
+
+# ============================================================================
+#  MODULO: KNOCKBACK  ->  retroceso custom estilo PvP (combos / w-tap)
+# ----------------------------------------------------------------------------
+#  Sustituye el knockback vanilla. Valores tipicos de servidor competitivo.
+#    friction          : divisor de la velocidad previa (mayor = menos deslizar)
+#    sprint-*          : extra al golpear esprintando (w-tap)
+#    enchant-horizontal: fuerza extra por nivel de Knockback/Golpe
+#    players-only      : true = solo afecta a jugadores
+# ============================================================================
+knockback:
+  enabled: false
+  horizontal: 0.4
+  vertical: 0.4
+  vertical-limit: 0.4
+  sprint-horizontal: 0.4
+  sprint-vertical: 0.0
+  friction: 2.0
+  enchant-horizontal: 0.5
+  players-only: true
+
+# ============================================================================
+#  MODULO: ABILITY  ->  cooldowns y coste de comida de habilidades de items
+# ----------------------------------------------------------------------------
+#  spear      : la LANZA (1.21.11) con el encantamiento LUNGE, que te propulsa
+#               al hacer un jab (clic izquierdo) gastando hambre.
+#                 cooldown          : segundos de cooldown del lunge
+#                 food-cost         : comida que gasta el lunge (2 = 1 muslo).
+#                                     -1 = no tocar (deja el coste vanilla).
+#                 block-on-cooldown : true = no puedes volver a lunge en cooldown
+#  mace-smash : cooldown del golpe con caida (smash). En cooldown no impacta.
+#  Nota: la 1.21.11 no da un evento propio del lunge, asi que se detecta el jab
+#  (clic izq. con una lanza encantada con Lunge). Es best-effort; pruebalo.
+#  Desactivado por defecto (vanilla). Activa lo que quieras probar.
+# ============================================================================
+ability:
+  enabled: true
+  spear:
+    enabled: false            # true = aplica cooldown y/o coste de comida al lunge
+    cooldown: 3.0             # segundos de cooldown del lunge
+    food-cost: -1.0           # -1 = coste vanilla. Ej: 6.0 = fijar en 3 muslos
+    block-on-cooldown: true   # bloquear el lunge mientras esta en cooldown
+    # --- Ejemplo "lanza con cooldown 3s que gasta 3 muslos por lunge" ---
+    #   enabled: true
+    #   cooldown: 3.0
+    #   food-cost: 6.0
+  mace-smash:
+    enabled: false       # true = cooldown al golpe con caida del mace
+    cooldown: 4.0
+    min-fall: 1.5

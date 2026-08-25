@@ -1,0 +1,35 @@
+name: SPvP
+version: ${project.version}
+main: me.sirius.sdamage.SPvP
+api-version: '1.21'
+author: Sirius
+description: Suite modular de PvP para Minecraft (danos, cooldowns y mas)
+# Sin SiriusCore.jar, Bukkit ni intenta cargar este plugin.
+depend:
+  - SiriusCore
+
+softdepend: [WorldGuard]
+
+commands:
+  spvp:
+    description: Comando principal de SPvP
+    usage: /spvp <reload|info|modules>
+    permission: spvp.admin
+    aliases: [sp, spv]
+
+permissions:
+  spvp.admin:
+    description: Administrar SPvP
+    default: op
+  spvp.cooldown.bypass:
+    description: Ignorar los cooldowns de items
+    default: false
+  spvp.food.bypass:
+    description: Ignorar el coste de hambre al usar items
+    default: false
+  spvp.totem.bypass:
+    description: Ignorar el cooldown de totems
+    default: false
+  spvp.ability.bypass:
+    description: Ignorar los cooldowns de habilidades (spear, mace)
+    default: false
