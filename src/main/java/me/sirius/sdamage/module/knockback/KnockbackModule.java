@@ -66,7 +66,12 @@ public final class KnockbackModule extends AbstractModule {
         if (dir.lengthSquared() > 1.0e-6) {
             dir.normalize();
         } else {
-            dir = attacker.getLocation().getDirection().setY(0).normalize();
+            dir = attacker.getLocation().getDirection().setY(0);
+            // Mirando recto arriba o abajo la direccion horizontal es cero, y
+            // normalizarla da NaN: Paper rechaza esa velocidad con una excepcion.
+            if (dir.lengthSquared() > 1.0e-6) {
+                dir.normalize();
+            }
         }
 
         double h = horizontal + enchantLevel(attacker) * enchantHorizontal;

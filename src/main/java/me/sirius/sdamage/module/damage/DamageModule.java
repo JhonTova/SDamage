@@ -60,13 +60,11 @@ public final class DamageModule extends AbstractModule {
         if (!plugin.worlds().isEnabled(victim.getWorld().getName())) {
             return;
         }
-        if (plugin.protection().isPvpDenied(victim)) {
-            return;
-        }
 
         boolean[] crit = {false};
+        Player[] culpable = {null};
         String key = (event instanceof EntityDamageByEntityEvent byEntity)
-                ? resolveByEntity(byEntity, crit)
+                ? resolveByEntity(byEntity, crit, culpable)
                 : resolveByCause(event.getCause());
 
         if (key == null) {
@@ -74,6 +72,12 @@ public final class DamageModule extends AbstractModule {
         }
         DamageRule rule = rules.get(key);
         if (rule == null || !rule.enabled()) {
+            return;
+        }
+        // WorldGuard al final: es la comprobacion cara y la mayoria del dano (fuego por
+        // tick, caidas, hambre) no tiene regla y ya se descarto arriba.
+        if (plugin.protection().isPvpDenied(victim)
+                || (culpable[0] != null && plugin.protection().isPvpDenied(culpable[0]))) {
             return;
         }
 
@@ -95,14 +99,12 @@ public final class DamageModule extends AbstractModule {
         }
     }
 
-    private String resolveByEntity(EntityDamageByEntityEvent event, boolean[] critOut) {
+    private String resolveByEntity(EntityDamageByEntityEvent event, boolean[] critOut, Player[] culpable) {
         Entity damager = event.getDamager();
 
         if (damager instanceof Player attacker) {
-            // Zona protegida del atacante tambien cuenta.
-            if (plugin.protection().isPvpDenied(attacker)) {
-                return null;
-            }
+            // La zona protegida del atacante tambien cuenta; se mira despues de la regla.
+            culpable[0] = attacker;
             critOut[0] = isMeleeCrit(attacker);
             return weaponKey(attacker.getInventory().getItemInMainHand());
         }
@@ -111,8 +113,8 @@ public final class DamageModule extends AbstractModule {
             return "trident";
         }
         if (damager instanceof AbstractArrow arrow) {
-            if (arrow.getShooter() instanceof Player shooter && plugin.protection().isPvpDenied(shooter)) {
-                return null;
+            if (arrow.getShooter() instanceof Player shooter) {
+                culpable[0] = shooter;
             }
             critOut[0] = arrow.isCritical();
             ItemStack weapon = safeWeapon(arrow);
