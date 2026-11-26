@@ -38,7 +38,7 @@ Requiere **[SiriusCore](https://github.com/JhonTova/SiriusCore)**. WorldGuard es
 
 ## Instalación
 
-`SiriusCore.jar` + `SDamage.jar` en `plugins/`. Spigot / Paper / Purpur 1.21.11+.
+`SiriusCore.jar` + `SDamage.jar` en `plugins/`. Paper / Purpur 1.21.11+.
 
 ## Descarga
 
@@ -57,3 +57,8 @@ mvn package        # en este repositorio; el .jar queda en target/
 
 Cada push y pull request se compila en GitHub Actions. Al subir una tag `v*`, el `.jar`
 se adjunta solo a la release.
+
+## Licencia
+
+[MIT](LICENSE): puedes usarlo, modificarlo y redistribuirlo manteniendo el aviso de copyright.
+Requiere SiriusCore, que tiene su propia licencia.
